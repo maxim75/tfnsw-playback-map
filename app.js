@@ -420,6 +420,16 @@ async function start() {
   });
   const h = parseHash();
   loadCity(cities.find((c) => c.id === h.id) || cities[0], h.h === undefined ? null : h);
+  // editing only the hash (another city, another time) acts without a reload
+  window.addEventListener("hashchange", () => {
+    const n = parseHash();
+    if (n.id === undefined && n.h === undefined) return;
+    const target = cities.find((c) => c.id === n.id) || cities[0];
+    const at = n.h === undefined ? null : n;
+    if (target !== city) loadCity(target, at);
+    else if (at && day) seek(localToEpoch(Number(at.h), Number(at.m)));
+    $("city").value = target.id;
+  });
   setInterval(prune, 5000);
   requestAnimationFrame(frame);
 }

@@ -1,7 +1,7 @@
 # Vehicle playback
 
 A static web page that replays 24 hours of public transport vehicle positions
-(Sydney, Prague, and any city added to the recorder) on a zoomable map: buses,
+(Sydney, and any other city added to the recorder, e.g. Prague) on a zoomable map: buses,
 trains, metro, ferries and trams, moving smoothly between their recorded GPS
 reports. A city picker in the panel switches between cities.
 
@@ -10,7 +10,7 @@ reports. A city picker in the panel switches between cities.
 - Time slider across the day (the strip under it shows when data was recorded),
   play/pause (space bar), 1×–120× speed, jump to a time. Open with
   `#<city>/HH:MM` in the URL to open a city at that time, e.g.
-  `…/#prague/17:30` (`#prague` alone picks the city; an old-style `#17:30`
+  `…/#sydney/17:30` (`#sydney` alone picks the city; an old-style `#17:30`
   means the first city).
 - Filter by mode and route, colour by mode (default), route or speed, fading trails.
   Zoom in for direction arrows and route numbers.
