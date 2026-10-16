@@ -11,6 +11,18 @@
    ],
    "zoom": 10.3,
    "attribution": "Transport for NSW (CC BY 4.0)",
+   "date": "2026-10-17"
+  },
+  {
+   "id": "prague",
+   "name": "Prague",
+   "timezone": "Europe/Prague",
+   "center": [
+    14.44,
+    50.08
+   ],
+   "zoom": 11.0,
+   "attribution": "Golemio / PID (CC BY 4.0)",
    "date": "2026-10-16"
   }
  ]
