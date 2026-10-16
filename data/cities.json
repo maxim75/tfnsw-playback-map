@@ -1,0 +1,17 @@
+{
+ "format": 2,
+ "cities": [
+  {
+   "id": "sydney",
+   "name": "Sydney",
+   "timezone": "Australia/Sydney",
+   "center": [
+    151.05,
+    -33.85
+   ],
+   "zoom": 10.3,
+   "attribution": "Transport for NSW (CC BY 4.0)",
+   "date": "2026-10-16"
+  }
+ ]
+}

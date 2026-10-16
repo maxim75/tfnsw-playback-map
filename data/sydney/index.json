@@ -1,4 +1,13 @@
 {
+ "format": 2,
+ "city": "sydney",
+ "name": "Sydney",
+ "center": [
+  151.05,
+  -33.85
+ ],
+ "zoom": 10.3,
+ "attribution": "Transport for NSW (CC BY 4.0)",
  "date": "2026-10-16",
  "timezone": "Australia/Sydney",
  "start": 1792069200,
@@ -21,9 +30,15 @@
   "1792143600": 44315,
   "1792144200": 41574,
   "1792144800": 39987,
-  "1792145400": 2629,
   "1792146600": 975,
-  "1792147200": 33997
+  "1792147200": 33997,
+  "1792147800": 32783,
+  "1792148400": 31632,
+  "1792149000": 30558,
+  "1792149600": 28594,
+  "1792150200": 27373,
+  "1792150800": 25717,
+  "1792151400": 24209
  },
  "feeds": [
   "buses",
@@ -36,6 +51,6 @@
   "regionbuses/sydneysurrounds",
   "sydneytrains"
  ],
- "generated": "2026-10-16T22:06:36+11:00",
- "source": "Transport for NSW Open Data, GTFS-Realtime vehicle positions (CC BY 4.0)"
+ "generated": "2026-10-16T23:23:38+11:00",
+ "source": "Transport for NSW (CC BY 4.0)"
 }

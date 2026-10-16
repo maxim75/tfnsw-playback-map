@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sydney Vehicle Playback</title>
-<meta name="description" content="24-hour playback of Sydney public transport vehicle positions recorded from Transport for NSW real-time data.">
+<title>Vehicle Playback</title>
+<meta name="description" content="24-hour playback of public transport vehicle positions recorded from GTFS-Realtime feeds, city by city.">
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="https://unpkg.com/deck.gl@9.1.14/dist.min.js"></script>
@@ -36,7 +36,7 @@
 <body>
 <div id="map"></div>
 <div id="panel">
-  <h1>Sydney vehicle playback</h1>
+  <h1>Vehicle playback <select id="city" aria-label="City"></select></h1>
   <div id="day" class="muted">Loading…</div>
   <div class="row" id="clock">—</div>
   <div class="row">
@@ -62,8 +62,8 @@
     </div>
   </details>
   <div class="row muted small">
-    Data: <a href="https://opendata.transport.nsw.gov.au/" target="_blank" rel="noopener">Transport for NSW</a> (CC BY 4.0),
-    recorded from GTFS-Realtime vehicle positions. Positions are interpolated between reports.
+    Data: <span id="attrib"></span>, recorded from GTFS-Realtime vehicle positions.
+    Positions are interpolated between reports.
   </div>
 </div>
 <script src="app.js"></script>
