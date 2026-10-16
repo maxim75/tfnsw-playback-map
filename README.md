@@ -45,6 +45,42 @@ repository from the recordings in its S3 bucket. The site shows one day at a
 time per city; exporting a day replaces that city's folder in `data/<city>/`
 (other cities are untouched) and updates `data/cities.json`.
 
+### Updating the map (quick reference)
+
+After the one-time setup below, a refresh is: export, check, push. To show
+yesterday's full day for every city, run from `tfnsw_realtime_recorder/`:
+
+```bash
+for city in sydney prague; do uv run export_static.py --city "$city" --date yesterday --out ../tfnsw-playback-map/data; done
+```
+
+then from `tfnsw-playback-map/`:
+
+```bash
+git add -A data && git commit -m "Data: $(date -v-1d +%F)" && git push
+```
+
+(`date -v-1d` is macOS; on Linux use `date -d yesterday +%F`.)
+
+- **Only one city:** run the export for that city alone; the other cities keep
+  their current day.
+- **Today so far:** use `--date today`. Re-run it later the same way to add
+  the newer windows (each finished window is added 15 minutes after it ends).
+- **Another day:** `--date 2026-10-16`. The site holds one day per city, so
+  this replaces that city's current day.
+- **Remove a city:** delete `data/<city>/` and its entry in `data/cities.json`,
+  then commit and push, e.g. for Prague:
+
+  ```bash
+  rm -r data/prague
+  python3 -c "import json,pathlib; p=pathlib.Path('data/cities.json'); d=json.loads(p.read_text()); d['cities']=[c for c in d['cities'] if c['id']!='prague']; p.write_text(json.dumps(d, indent=1))"
+  ```
+
+- **After pushing:** GitHub Pages rebuilds in a minute or two, and browsers
+  may keep the previous files for up to 10 minutes (Pages sends
+  `Cache-Control: max-age=600`). Hard-refresh (Cmd+Shift+R) or use a
+  private window to see the new day immediately.
+
 ### 1. One-time setup
 
 Clone both repositories side by side (the recorder repository is private, so
