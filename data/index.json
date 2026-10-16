@@ -15,7 +15,8 @@
   "1792140000": 55156,
   "1792140600": 50417,
   "1792141200": 47852,
-  "1792141800": 45720
+  "1792141800": 45720,
+  "1792142400": 43613
  },
  "feeds": [
   "buses",
@@ -27,6 +28,6 @@
   "regionbuses/sydneysurrounds",
   "sydneytrains"
  ],
- "generated": "2026-10-16T20:41:58+11:00",
+ "generated": "2026-10-16T20:48:45+11:00",
  "source": "Transport for NSW Open Data, GTFS-Realtime vehicle positions (CC BY 4.0)"
 }
