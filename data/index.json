@@ -1,0 +1,32 @@
+{
+ "date": "2026-10-16",
+ "timezone": "Australia/Sydney",
+ "start": 1792069200,
+ "end": 1792155600,
+ "window_seconds": 600,
+ "windows": {
+  "1792134000": 49292,
+  "1792134600": 4781,
+  "1792136400": 15960,
+  "1792137000": 37098,
+  "1792137600": 13295,
+  "1792138800": 30895,
+  "1792139400": 57795,
+  "1792140000": 55156,
+  "1792140600": 50417,
+  "1792141200": 47852,
+  "1792141800": 45720
+ },
+ "feeds": [
+  "buses",
+  "ferries/sydneyferries",
+  "lightrail/cbdandsoutheast",
+  "lightrail/innerwest",
+  "lightrail/parramatta",
+  "nswtrains",
+  "regionbuses/sydneysurrounds",
+  "sydneytrains"
+ ],
+ "generated": "2026-10-16T20:41:58+11:00",
+ "source": "Transport for NSW Open Data, GTFS-Realtime vehicle positions (CC BY 4.0)"
+}
