@@ -1,0 +1,20 @@
+{
+ "format": 2,
+ "city": "kyiv",
+ "name": "Kyiv",
+ "center": [
+  30.52,
+  50.45
+ ],
+ "zoom": 11.0,
+ "attribution": "Kyivpastrans / Kyiv City open data (Open Data Licence)",
+ "date": "2026-10-16",
+ "timezone": "Europe/Kyiv",
+ "start": 1792098000,
+ "end": 1792184400,
+ "window_seconds": 600,
+ "windows": {},
+ "feeds": [],
+ "generated": "2026-10-17T00:22:55+03:00",
+ "source": "Kyivpastrans / Kyiv City open data (Open Data Licence)"
+}
