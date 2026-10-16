@@ -109,7 +109,7 @@ async function loadWindow(w) {
   } catch (e) {
     if (g === gen) play.windows.set(w, { state: "error", at: Date.now(), error: String(e) });
   } finally {
-    inFlight--;
+    if (g === gen) inFlight--;  // loadCity resets the count
   }
 }
 function prune() {
@@ -178,6 +178,14 @@ function setTimezone(tz) {
 }
 setTimezone("UTC");
 const hhmm = (epoch) => clockFmt.format(new Date(epoch * 1000)).slice(0, 5);
+/** Epoch of local time *h*:*m* on the loaded day, clamped to it. Allows for a 23/25-hour day: a repeated
+ *  hour gives its first occurrence, a skipped time the next valid one. */
+function localToEpoch(h, m) {
+  const want = String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+  const e = day.start + h * 3600 + m * 60;
+  const hit = [e, e + 3600, e - 3600].find((c) => c >= day.start && c < day.end && hhmm(c) === want);
+  return Math.max(day.start, Math.min(hit ?? e, day.end - 1));
+}
 
 // --- filters -----------------------------------------------------------------
 for (const [m, name] of MODES) {
@@ -300,16 +308,17 @@ function setPlaying(on) {
   $("playBtn").textContent = on ? "⏸" : "▶";
 }
 $("playBtn").addEventListener("click", () => {
+  if (!day) return;
   if (!play.playing && play.t >= day.end - 1) seek(day.start);  // replay from the start
   setPlaying(!play.playing);
 });
-$("slider").addEventListener("input", () => seek(day.start + Number($("slider").value)));
+$("slider").addEventListener("input", () => day && seek(day.start + Number($("slider").value)));
 $("time").addEventListener("change", () => {
-  if (!$("time").value) return;
+  if (!day || !$("time").value) return;
   const [h, m] = $("time").value.split(":").map(Number);
-  seek(day.start + h * 3600 + m * 60);  // day.start is local midnight (an hour off after a DST change)
+  seek(localToEpoch(h, m));
 });
-$("speed").addEventListener("change", ensureWindows);
+$("speed").addEventListener("change", () => day && ensureWindows());
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space" && !["INPUT", "SELECT", "BUTTON"].includes(document.activeElement.tagName)) {
     e.preventDefault(); $("playBtn").click();
@@ -387,8 +396,8 @@ async function loadCity(c, at) {
   drawCoverage();
   const starts = Object.keys(day.windows).map(Number).sort((a, b) => a - b);
   // a given time jumps there; otherwise start at 08:00 if recorded, else at the first data
-  const eight = day.start + 8 * 3600;
-  seek(at ? day.start + Number(at.h) * 3600 + Number(at.m) * 60 : (hasData(windowOf(eight)) ? eight : starts[0] ?? day.start));
+  const eight = localToEpoch(8, 0);
+  seek(at ? localToEpoch(Number(at.h), Number(at.m)) : (hasData(windowOf(eight)) ? eight : starts[0] ?? day.start));
   setPlaying(true);
 }
 
