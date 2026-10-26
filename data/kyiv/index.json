@@ -73,6 +73,11 @@
  "feeds": [
   "all"
  ],
+ "modes": [
+  "bus",
+  "tram",
+  "trolleybus"
+ ],
  "generated": "2026-10-17T09:42:39+03:00",
  "source": "Kyivpastrans / Kyiv City open data (Open Data Licence)"
 }

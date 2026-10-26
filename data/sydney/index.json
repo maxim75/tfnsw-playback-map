@@ -169,6 +169,13 @@
   "regionbuses/sydneysurrounds",
   "sydneytrains"
  ],
+ "modes": [
+  "bus",
+  "ferry",
+  "metro",
+  "rail",
+  "tram"
+ ],
  "generated": "2026-10-27T10:06:38+11:00",
  "source": "Transport for NSW (CC BY 4.0)"
 }

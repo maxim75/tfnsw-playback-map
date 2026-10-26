@@ -29,7 +29,7 @@ Transport for NSW data, licensed under
 
 ```
 data/cities.json                  cities, with centre, zoom, timezone, attribution, exported date
-data/<city>/index.json            day bounds (city time), windows with data, feeds (format 2)
+data/<city>/index.json            day bounds (city time), windows with data, feeds, modes (format 2)
 data/<city>/w/<start>.json.gz     one compact file per 10-minute window
 ```
 

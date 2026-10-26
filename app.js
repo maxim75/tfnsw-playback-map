@@ -206,21 +206,27 @@ function localToEpoch(h, m) {
 }
 
 // --- filters -----------------------------------------------------------------
-for (const [m, name] of MODES) {
-  const label = document.createElement("label"), box = document.createElement("input");
-  box.type = "checkbox"; box.value = m; box.checked = true;
-  label.append(box, " " + name);
-  $("feeds").append(label);
-}
 let disabledModes, routeFilter;  // a mode without a checkbox is always shown
+/** One checkbox per mode the loaded day has, all ticked; every mode for data without a list (older exports). */
+function buildModes(modes) {
+  const have = modes && new Set(modes.map(normMode));
+  $("feeds").replaceChildren(...MODES.filter(([m]) => !have || have.has(m)).map(([m, name]) => {
+    const label = document.createElement("label"), box = document.createElement("input");
+    box.type = "checkbox"; box.value = m; box.checked = true;
+    box.addEventListener("input", readFilters);
+    label.append(box, " " + name);
+    return label;
+  }));
+  readFilters();
+}
 function readFilters() {
   disabledModes = new Set([...document.querySelectorAll("#feeds input:not(:checked)")].map((i) => i.value));
   const routes = $("routes").value.split(/[\s,]+/).filter(Boolean).map((s) => s.toUpperCase());
   routeFilter = routes.length ? new Set(routes) : null;
   play.version++;
 }
-document.querySelectorAll("#feeds input, #routes").forEach((el) => el.addEventListener("input", readFilters));
-readFilters();
+$("routes").addEventListener("input", readFilters);
+buildModes(null);
 const visible = (v) => !disabledModes.has(v.mode) && (!routeFilter || routeFilter.has(v.label.toUpperCase()) || routeFilter.has(v.route.toUpperCase()));
 
 // --- map ---------------------------------------------------------------------
@@ -431,6 +437,7 @@ async function loadCity(c, at) {
   if (g !== gen) return;
   $("day").className = "muted";
   day = d;
+  buildModes(d.modes);
   WINDOW_S = d.window_seconds || 600;
   setTimezone(d.timezone || c.timezone);
   $("day").textContent = dayFmt.format(new Date((day.start + 43200) * 1000));

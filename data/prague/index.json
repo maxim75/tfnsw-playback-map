@@ -68,6 +68,14 @@
  "feeds": [
   "all"
  ],
+ "modes": [
+  "bus",
+  "ferry",
+  "metro",
+  "rail",
+  "tram",
+  "trolleybus"
+ ],
  "generated": "2026-10-17T08:43:25+02:00",
  "source": "Golemio / PID (CC BY 4.0)"
 }
