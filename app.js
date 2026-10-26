@@ -241,6 +241,7 @@ const ARROW = {
 };
 const overlay = new deck.MapboxOverlay({
   interleaved: true,
+  pickingRadius: 10,  // vehicles are small and moving: hover the nearest one within 10 px, not only the exact pixel
   getTooltip: ({ object: d }) => d && {
     html: `<b>${d.v.mode === "bus" ? "Route " : ""}${esc(d.v.label || "—")}</b> ` +
           `<span style="opacity:.7">${esc(MODE_LABELS[d.v.mode])} · ${esc(d.v.feed)} · ${esc(d.v.vid)}</span><br>` +
