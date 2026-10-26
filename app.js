@@ -239,17 +239,39 @@ const ARROW = {
     '<path d="M32 4 L54 56 L32 44 L10 56 Z" fill="#fff"/></svg>'),
   width: 64, height: 64, anchorY: 32, mask: true,
 };
-const overlay = new deck.MapboxOverlay({
-  interleaved: true,
-  pickingRadius: 10,  // vehicles are small and moving: hover the nearest one within 10 px, not only the exact pixel
-  getTooltip: ({ object: d }) => d && {
-    html: `<b>${d.v.mode === "bus" ? "Route " : ""}${esc(d.v.label || "—")}</b> ` +
-          `<span style="opacity:.7">${esc(MODE_LABELS[d.v.mode])} · ${esc(d.v.feed)} · ${esc(d.v.vid)}</span><br>` +
-          `${d.speed == null ? "" : `${Math.round(d.speed * 3.6)} km/h · `}report ${clockFmt.format(new Date(d.ts * 1000))}`,
-    style: { fontSize: "12px", padding: "6px 8px" },
-  },
-});
+const overlay = new deck.MapboxOverlay({ interleaved: true });
 map.addControl(overlay);
+
+// Our own tooltip rather than deck's getTooltip: render() hands deck new layers every frame and deck drops
+// its tooltip on each update (it lasted ~300 ms). We remember the hovered vehicle and redraw its tooltip at
+// the vehicle's current position every frame, so it stays up and follows the vehicle while it moves.
+const PICK_RADIUS = 10;  // px: vehicles are small and moving, so hover the nearest one within reach
+const tipHtml = (d) =>
+  `<b>${d.v.mode === "bus" ? "Route " : ""}${esc(d.v.label || "—")}</b> ` +
+  `<span style="opacity:.7">${esc(MODE_LABELS[d.v.mode])} · ${esc(d.v.feed)}</span><br>` +
+  `${d.speed == null ? "" : `${Math.round(d.speed * 3.6)} km/h · `}report ${clockFmt.format(new Date(d.ts * 1000))}`;
+const tip = document.createElement("div");
+tip.className = "vtip";
+map.getContainer().append(tip);
+let mouse = null, hovered = null, lastPick = 0;
+map.on("mousemove", (e) => { mouse = e.point; lastPick = 0; });
+map.on("mouseout", () => { mouse = null; hovered = null; });
+function updateTip(points) {
+  const now = performance.now();
+  if (mouse && (lastPick === 0 || (!hovered && now - lastPick > 100))) {  // on mouse move; else poll while nothing is hovered
+    const hit = overlay.pickObject({ x: mouse.x, y: mouse.y, radius: PICK_RADIUS });
+    hovered = hit?.object?.v ?? null;
+    lastPick = now;
+  }
+  const d = hovered && points.find((p) => p.v === hovered);
+  map.getCanvas().style.cursor = d ? "pointer" : "";
+  if (!d) { tip.style.display = "none"; return; }
+  tip.innerHTML = tipHtml(d);
+  tip.style.display = "block";
+  const { x, y } = map.project(d.position), box = map.getContainer();
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.transform = `translate(${Math.max(4, Math.min(x + 12, box.clientWidth - w - 4))}px, ${y - h - 12 < 4 ? y + 12 : y - h - 12}px)`;
+}
 
 const trails = { version: -1, base: 0, data: [] };
 function trailData(base) {
@@ -303,6 +325,7 @@ function render(t, base) {
       }),
     ],
   });
+  updateTip(points);
   return points.length;
 }
 
