@@ -230,10 +230,29 @@ buildModes(null);
 const visible = (v) => !disabledModes.has(v.mode) && (!routeFilter || routeFilter.has(v.label.toUpperCase()) || routeFilter.has(v.route.toUpperCase()));
 
 // --- map ---------------------------------------------------------------------
-const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+// Theme: "dark" (default), "light" or "system", saved in localStorage; index.html sets data-theme from it.
+const systemDark = matchMedia("(prefers-color-scheme: dark)");
+let themePref = "dark";
+try { themePref = ["dark", "light", "system"].find((x) => x === localStorage.getItem("theme")) || "dark"; } catch {}
+const wantDark = () => themePref === "dark" || (themePref === "system" && systemDark.matches);
+let dark = wantDark();
+const styleUrl = () => `https://tiles.openfreemap.org/styles/${dark ? "dark" : "positron"}`;
+function applyTheme() {
+  if (wantDark() === dark) return;
+  dark = !dark;
+  document.documentElement.dataset.theme = dark ? "dark" : "light";
+  map.setStyle(styleUrl());  // the vehicle layers are drawn by the overlay, which re-adds itself
+}
+$("theme").value = themePref;
+$("theme").addEventListener("change", () => {
+  themePref = $("theme").value;
+  try { localStorage.setItem("theme", themePref); } catch {}
+  applyTheme();
+});
+systemDark.addEventListener("change", applyTheme);
 const map = new maplibregl.Map({
   container: "map",
-  style: `https://tiles.openfreemap.org/styles/${dark ? "dark" : "positron"}`,
+  style: styleUrl(),
   center: [0, 20], zoom: 2, maxZoom: 19, attributionControl: { compact: true },
 });
 map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-right");
