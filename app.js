@@ -6,6 +6,10 @@
 "use strict";
 
 const $ = (id) => document.getElementById(id);
+// Google Analytics events (gtag is defined in index.html). Never throws; sends no personal data or coordinates.
+const track = (name, params = {}) => {
+  try { gtag("event", name, { city: city ? city.id : undefined, ...params }); } catch {}
+};
 // Same modes, labels and colours as the recorder's /map.
 const MODES = [
   ["metro", "Metro", [22, 128, 128]], ["tram", "Tram/light rail", [196, 30, 58]], ["rail", "Train", [242, 133, 0]],
@@ -213,7 +217,7 @@ function buildModes(modes) {
   $("feeds").replaceChildren(...MODES.filter(([m]) => !have || have.has(m)).map(([m, name]) => {
     const label = document.createElement("label"), box = document.createElement("input");
     box.type = "checkbox"; box.value = m; box.checked = true;
-    box.addEventListener("input", readFilters);
+    box.addEventListener("input", () => { track("mode_toggle", { mode: m, enabled: box.checked ? "on" : "off" }); readFilters(); });
     label.append(box, " " + name);
     return label;
   }));
@@ -226,6 +230,13 @@ function readFilters() {
   play.version++;
 }
 $("routes").addEventListener("input", readFilters);
+let routeTimer;
+$("routes").addEventListener("input", () => {  // after typing stops; only how many routes, not which
+  clearTimeout(routeTimer);
+  routeTimer = setTimeout(() => track("route_filter", { route_count: routeFilter ? routeFilter.size : 0 }), 1500);
+});
+$("colour").addEventListener("change", () => track("colour_by", { colour_by: $("colour").value }));
+$("trails").addEventListener("change", () => track("trails_toggle", { enabled: $("trails").checked ? "on" : "off" }));
 buildModes(null);
 const visible = (v) => !disabledModes.has(v.mode) && (!routeFilter || routeFilter.has(v.label.toUpperCase()) || routeFilter.has(v.route.toUpperCase()));
 
@@ -247,6 +258,7 @@ $("theme").value = themePref;
 $("theme").addEventListener("change", () => {
   themePref = $("theme").value;
   try { localStorage.setItem("theme", themePref); } catch {}
+  track("theme_select", { theme: themePref });
   applyTheme();
 });
 systemDark.addEventListener("change", applyTheme);
@@ -378,14 +390,17 @@ $("playBtn").addEventListener("click", () => {
   if (!day) return;
   if (!play.playing && play.t >= day.end - 1) seek(day.start);  // replay from the start
   setPlaying(!play.playing);
+  track("play_pause", { action: play.playing ? "play" : "pause" });
 });
 $("slider").addEventListener("input", () => day && seek(day.start + Number($("slider").value)));
+$("slider").addEventListener("change", () => track("time_seek", { method: "slider" }));  // on release
 $("time").addEventListener("change", () => {
   if (!day || !$("time").value) return;
   const [h, m] = $("time").value.split(":").map(Number);
   seek(localToEpoch(h, m));
+  track("time_seek", { method: "time_input" });
 });
-$("speed").addEventListener("change", () => day && ensureWindows());
+$("speed").addEventListener("change", () => { track("speed_select", { speed: Number($("speed").value) }); if (day) ensureWindows(); });
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space" && !["INPUT", "SELECT", "BUTTON"].includes(document.activeElement.tagName)) {
     e.preventDefault(); $("playBtn").click();
@@ -483,6 +498,7 @@ async function start() {
     $("city").append(o);
   }
   $("city").addEventListener("change", () => {
+    track("city_select", { selected_city: $("city").value });
     history.replaceState(null, "", "#" + $("city").value);
     loadCity(cities.find((c) => c.id === $("city").value));
   });
@@ -501,4 +517,23 @@ async function start() {
   setInterval(prune, 5000);
   requestAnimationFrame(frame);
 }
+
+// Map pan/zoom: one event per finished user gesture (moves we make ourselves have no originalEvent),
+// coalesced over 600 ms. A change of zoom counts as a zoom, otherwise a move of over 30 px as a pan.
+let lastView = null, viewTimer;
+const viewNow = () => ({ zoom: map.getZoom(), centre: map.getCenter() });
+map.on("load", () => { lastView = viewNow(); });
+map.on("moveend", (e) => {
+  if (!e.originalEvent) { lastView = viewNow(); return; }
+  clearTimeout(viewTimer);
+  viewTimer = setTimeout(() => {
+    if (!lastView) return;
+    const now = viewNow(), dz = now.zoom - lastView.zoom;
+    const a = map.project(lastView.centre), b = map.project(now.centre);
+    if (Math.abs(dz) >= 0.1) track("map_zoom", { direction: dz > 0 ? "in" : "out", zoom_level: +now.zoom.toFixed(1) });
+    else if (Math.hypot(a.x - b.x, a.y - b.y) > 30) track("map_pan", { zoom_level: +now.zoom.toFixed(1) });
+    lastView = now;
+  }, 600);
+});
+
 map.on("load", start);
